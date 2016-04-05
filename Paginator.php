@@ -9,10 +9,9 @@ class Paginator
 	const DEFAULT_RANGE = 3;
 	
 	const DEFAULT_HREF = '?page={PAGE}&value={VALUE}';
-	const DEFAULT_FORMAT = 'json';
 	
 	protected $formats = array(
-		'json' => '',
+		'json' => 'json_encode',
 		'bootstrap' => array(
 			'before'        => "<ul class='pagination'>\n",
 			'prev'          => "\t<li><a href='{HREF}' aria-label='Previous'><span aria-hidden='true'>&laquo;</span></a></li>\n",
@@ -123,10 +122,10 @@ class Paginator
 		$this->formats[$name] = $format;
 	}
 			
-	function getOutput($href = self::DEFAULT_HREF, $format = self::DEFAULT_FORMAT)
+	function getOutput($href = self::DEFAULT_HREF, $format = '')
 	{
 		$ret = '';
-		if(is_array($this->formats[$format])) {
+		if($format && is_array($this->formats[$format])) {
 			$ret .= $this->formats[$format]['before'];
 			foreach($this->pages as $p) {
 				$search = array('{PAGE}', '{VALUE}');
@@ -139,11 +138,12 @@ class Paginator
 			}
 			$ret .= $this->formats[$format]['after'];
 		}
-		else $ret = json_encode($this->pages);
+		elseif($format && is_callable($this->formats[$format])) $ret = $this->formats[$format]($this->pages);
+		else $ret = $this->pages;
 		return $ret;
 	}
 	
-	function showOutput($href = self::DEFAULT_HREF, $format = self::DEFAULT_FORMAT)
+	function showOutput($href = self::DEFAULT_HREF, $format = '')
 	{
 		echo $this->getOutput($href, $format);
 	}
