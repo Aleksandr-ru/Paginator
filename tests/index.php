@@ -2,6 +2,9 @@
 	require '../Paginator.php';
 	$href = '?page={PAGE}&value={VALUE}';
 	$format = 'bootstrap';
+	
+	ini_set('display_errors', 'on');
+	error_reporting(E_ALL);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -80,6 +83,13 @@
 		<pre>$paginator = new Paginator(11, 20, 1, 0, 5);</pre>
 		<?php
 			$paginator = new Paginator(11, 20, 1, 0, 5);
+			$paginator->showOutput($href, $format);
+		?>
+		<hr>
+		
+		<pre>$paginator = new Paginator(11, 20, 0);</pre>
+		<?php		
+			$paginator = new Paginator(11, 20, 0);
 			$paginator->showOutput($href, $format);
 		?>
 		<hr>

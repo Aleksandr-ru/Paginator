@@ -8,6 +8,9 @@ class Paginator
 	const DEFAULT_MIN = 0;
 	const DEFAULT_RANGE = 3;
 	
+	const DEFAULT_HREF = '?page={PAGE}&value={VALUE}';
+	const DEFAULT_FORMAT = 'json';
+	
 	protected $formats = array(
 		'json' => '',
 		'bootstrap' => array(
@@ -37,6 +40,10 @@ class Paginator
 	*/
 	function __construct($value, $total, $limit = self::DEFAULT_LIMIT, $min = self::DEFAULT_MIN, $range = self::DEFAULT_RANGE)
 	{
+		if($limit < 1) throw new BadMethodCallException("Limit cannot be less than 1");
+		if($value > $total) throw new BadMethodCallException("Value more than total");
+		if($value < $min) throw new BadMethodCallException("Value less than min");
+		
 		$total_pages = ceil(($total - $min) / $limit) + intval($min > 0);
 		$current_page = floor(($value - $min) / $limit) + 1;
 		
@@ -116,18 +123,18 @@ class Paginator
 		$this->formats[$name] = $format;
 	}
 			
-	function getOutput($href, $format)
+	function getOutput($href = self::DEFAULT_HREF, $format = self::DEFAULT_FORMAT)
 	{
 		$ret = '';
 		if(is_array($this->formats[$format])) {
 			$ret .= $this->formats[$format]['before'];
 			foreach($this->pages as $p) {
 				$search = array('{PAGE}', '{VALUE}');
-				$replace = array($p['page'], $p['value']);
+				$replace = array(@$p['page'], @$p['value']);
 				$p['href'] = str_replace($search, $replace, $href);
 
 				$search = array('{PAGE}', '{HREF}');
-				$replace = array($p['page'], $p['href']);
+				$replace = array(@$p['page'], @$p['href']);
 				if(isset($this->formats[$format][$p['type']])) $ret .= str_replace($search, $replace, $this->formats[$format][$p['type']]);
 			}
 			$ret .= $this->formats[$format]['after'];
@@ -136,7 +143,7 @@ class Paginator
 		return $ret;
 	}
 	
-	function showOutput($href = "?page={PAGE}&value={VALUE}", $format = 'json')
+	function showOutput($href = self::DEFAULT_HREF, $format = self::DEFAULT_FORMAT)
 	{
 		echo $this->getOutput($href, $format);
 	}
