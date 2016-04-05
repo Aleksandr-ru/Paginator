@@ -1,6 +1,6 @@
 <?php
 /**
-* @abstract на удивление простая штука, но требующая серьезной реализации
+* @abstract РЅР° СѓРґРёРІР»РµРЅРёРµ РїСЂРѕСЃС‚Р°СЏ С€С‚СѓРєР°, РЅРѕ С‚СЂРµР±СѓСЋС‰Р°СЏ СЃРµСЂСЊРµР·РЅРѕР№ СЂРµР°Р»РёР·Р°С†РёРё
 */
 class Paginator
 {
@@ -27,36 +27,36 @@ class Paginator
 	
 	/**
 	* 
-	* @param int $value текущее значение
-	* @param int $total максимальное значение
-	* @param int $limit элементов на странице
-	* @param int $min минимальное значение
-	* @param int $range кол-во отображемых страниц от текущей
+	* @param int $value С‚РµРєСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ
+	* @param int $total РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
+	* @param int $limit СЌР»РµРјРµРЅС‚РѕРІ РЅР° СЃС‚СЂР°РЅРёС†Рµ
+	* @param int $min РјРёРЅРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
+	* @param int $range РєРѕР»-РІРѕ РѕС‚РѕР±СЂР°Р¶РµРјС‹С… СЃС‚СЂР°РЅРёС† РѕС‚ С‚РµРєСѓС‰РµР№
 	* 
 	* @return
 	*/
 	function __construct($value, $total, $limit = self::DEFAULT_LIMIT, $min = self::DEFAULT_MIN, $range = self::DEFAULT_RANGE)
 	{
 		$total_pages = ceil(($total - $min) / $limit);
-		$current_page = floor(($value - $min) / $limit) + 1; //TODO: проверить так-ли это
+		$current_page = floor(($value - $min) / $limit) + 1; //TODO: РїСЂРѕРІРµСЂРёС‚СЊ С‚Р°Рє-Р»Рё СЌС‚Рѕ
 		
-		if($total_pages < ($range+1)* 2) { // тут все просто, рисуем с первой по последнюю
+		if($total_pages < ($range+1)* 2) { // С‚СѓС‚ РІСЃРµ РїСЂРѕСЃС‚Рѕ, СЂРёСЃСѓРµРј СЃ РїРµСЂРІРѕР№ РїРѕ РїРѕСЃР»РµРґРЅСЋСЋ
 			$min_page = 1;
 			$max_page = $total_pages;
 			$space_before = FALSE;
 			$space_after = FALSE;
 		}
-		else { // а вот это сложный вариант
+		else { // Р° РІРѕС‚ СЌС‚Рѕ СЃР»РѕР¶РЅС‹Р№ РІР°СЂРёР°РЅС‚
 			$min_page = $current_page - $range;
-			if($min_page <= 2) $min_page = 1; // чтоб не было дырок в одну страницу
+			if($min_page <= 2) $min_page = 1; // С‡С‚РѕР± РЅРµ Р±С‹Р»Рѕ РґС‹СЂРѕРє РІ РѕРґРЅСѓ СЃС‚СЂР°РЅРёС†Сѓ
 			$space_before = ($min_page != 1);
 			
 			$max_page = $current_page + $range;
-			if($total_pages - $max_page <= 2) $max_page = $total_pages; // тоже чтоб не было дырок
+			if($total_pages - $max_page <= 2) $max_page = $total_pages; // С‚РѕР¶Рµ С‡С‚РѕР± РЅРµ Р±С‹Р»Рѕ РґС‹СЂРѕРє
 			$space_after = ($max_page != $total_pages);
 		}
 		
-		// предыдущая страница
+		// РїСЂРµРґС‹РґСѓС‰Р°СЏ СЃС‚СЂР°РЅРёС†Р°
 		if($current_page > 1) $this->pages[] = array(
 			'type' => 'prev',
 			'page' => $current_page - 1,
@@ -65,11 +65,11 @@ class Paginator
 		else $this->pages[] = array(
 			'type' => 'prev-disabled'
 		);
-		// пробел
+		// РїСЂРѕР±РµР»
 		if($space_before) $this->pages[] = array(
 			'type' => 'space'
 		);
-		// сраницы
+		// СЃСЂР°РЅРёС†С‹
 		for($p = $min_page; $p <= $max_page; $p++) {
 			if($p == $current_page) $this->pages[] = array(
 				'type' => 'page-active',
@@ -82,11 +82,11 @@ class Paginator
 				'value' => 0				
 			);	
 		}
-		// пробел
+		// РїСЂРѕР±РµР»
 		if($space_after) $this->pages[] = array(
 			'type' => 'space'
 		);
-		// следующая страница
+		// СЃР»РµРґСѓСЋС‰Р°СЏ СЃС‚СЂР°РЅРёС†Р°
 		if($current_page < $total_pages) $this->pages[] = array(
 			'type' => 'next',
 			'page' => $current_page + 1,
