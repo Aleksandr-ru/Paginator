@@ -37,8 +37,8 @@ class Paginator
 	*/
 	function __construct($value, $total, $limit = self::DEFAULT_LIMIT, $min = self::DEFAULT_MIN, $range = self::DEFAULT_RANGE)
 	{
-		$total_pages = ceil(($total - $min) / $limit);
-		$current_page = floor(($value - $min) / $limit) + 1; //TODO: проверить так-ли это
+		$total_pages = ceil(($total - $min) / $limit) + intval($min > 0);
+		$current_page = floor(($value - $min) / $limit) + 1;
 		
 		if($total_pages < ($range+1)* 2) { // тут все просто, рисуем с первой по последнюю
 			$min_page = 1;
@@ -60,37 +60,51 @@ class Paginator
 		if($current_page > 1) $this->pages[] = array(
 			'type' => 'prev',
 			'page' => $current_page - 1,
-			'value' => $min + $limit * ($current_page - 1)
+			'value' => $min + $limit * ($current_page - 2)
 		);
 		else $this->pages[] = array(
 			'type' => 'prev-disabled'
 		);
 		// пробел
-		if($space_before) $this->pages[] = array(
-			'type' => 'space'
-		);
+		if($space_before) {
+			$this->pages[] = array(
+				'type' => 'page',
+				'page' => 1,
+				'value' => $min
+			);
+			$this->pages[] = array(
+				'type' => 'space'
+			);
+		}
 		// сраницы
 		for($p = $min_page; $p <= $max_page; $p++) {
 			if($p == $current_page) $this->pages[] = array(
 				'type' => 'page-active',
 				'page' => $current_page,
-				'value' => $min + $limit * $current_page
+				'value' => $min + $limit * ($current_page - 1)
 			);	
 			else $this->pages[] = array(
 				'type' => 'page',
 				'page' => $p,
-				'value' => $min + $limit * $p				
+				'value' => $min + $limit * ($p - 1)				
 			);	
 		}
 		// пробел
-		if($space_after) $this->pages[] = array(
-			'type' => 'space'
-		);
+		if($space_after) {
+			$this->pages[] = array(
+				'type' => 'space'
+			);
+			$this->pages[] = array(
+				'type' => 'page',
+				'page' => $total_pages,
+				'value' => $min + $limit * ($total_pages - 1)
+			);
+		}
 		// следующая страница
 		if($current_page < $total_pages) $this->pages[] = array(
 			'type' => 'next',
 			'page' => $current_page + 1,
-			'value' => $min + $limit * ($current_page + 1)
+			'value' => $min + $limit * $current_page
 		);
 		else $this->pages[] = array(
 			'type' => 'next-disabled'
@@ -105,14 +119,18 @@ class Paginator
 	function getOutput($href, $format)
 	{
 		$ret = '';
-		if(is_array($this->formats[$format])) foreach($this->pages as $p) {
-			$search = array('{PAGE}', '{VALUE}');
-			$replace = array($p['page'], $p['value']);
-			$p['href'] = str_replace($search, $replace, $href);
-			
-			$search = array('{PAGE}', '{HREF}');
-			$replace = array($p['page'], $p['href']);
-			if(isset($this->formats[$format][$p['type']])) $ret .= str_replace($search, $replace, $this->formats[$format][$p['type']]);
+		if(is_array($this->formats[$format])) {
+			$ret .= $this->formats[$format]['before'];
+			foreach($this->pages as $p) {
+				$search = array('{PAGE}', '{VALUE}');
+				$replace = array($p['page'], $p['value']);
+				$p['href'] = str_replace($search, $replace, $href);
+
+				$search = array('{PAGE}', '{HREF}');
+				$replace = array($p['page'], $p['href']);
+				if(isset($this->formats[$format][$p['type']])) $ret .= str_replace($search, $replace, $this->formats[$format][$p['type']]);
+			}
+			$ret .= $this->formats[$format]['after'];
 		}
 		else $ret = json_encode($this->pages);
 		return $ret;
@@ -120,7 +138,7 @@ class Paginator
 	
 	function showOutput($href = "?page={PAGE}&value={VALUE}", $format = 'json')
 	{
-		return $this->getOutput($href, $format);
+		echo $this->getOutput($href, $format);
 	}
 }
 ?>
