@@ -1,7 +1,11 @@
 <?php
 /**
-* @abstract на удивление простая штука, но требующая серьезной реализации
-*/
+ * Класс постраничной навигации
+ * @author Rebel
+ * @copyright (c) 2016 Aleksandr.ru
+ * @link https://github.com/Aleksandr-ru/Paginator
+ * @abstract на удивление простая штука, но требующая серьезной реализации
+ */
 class Paginator
 {
 	const DEFAULT_LIMIT = 20;
@@ -10,6 +14,10 @@ class Paginator
 	
 	const DEFAULT_HREF = '?page={PAGE}&value={VALUE}';
 	
+	/**
+	 * Форматы отображения
+	 * @var array
+	 */
 	protected $formats = array(
 		'json' => 'json_encode',
 		'bootstrap' => array(
@@ -25,17 +33,21 @@ class Paginator
 		)
 	);
 	
+	/**
+	 * Хранилище навигации
+	 * @var array
+	 */
 	protected $pages;
 	
 	/**
-	* 
+	* Формирование списка страниц
 	* @param int $value текущее значение
 	* @param int $total максимальное значение
 	* @param int $limit элементов на странице
 	* @param int $min минимальное значение
 	* @param int $range кол-во отображемых страниц от текущей
 	* 
-	* @return
+	* @throws BadMethodCallException
 	*/
 	function __construct($value, $total, $limit = self::DEFAULT_LIMIT, $min = self::DEFAULT_MIN, $range = self::DEFAULT_RANGE)
 	{
@@ -117,11 +129,28 @@ class Paginator
 		);
 	}
 	
+	/**
+	 * Добавить формат вывода
+	 * @param string $name
+	 * @param mixed $format массив формата или callback функция
+	 * 
+	 * @see Paginator::$formats
+	 */
 	function addFormat($name, $format)
 	{
 		$this->formats[$name] = $format;
 	}
-			
+	
+	/**
+	 * Получить навигацию в указанном формате
+	 * @param string $href формат ссылки на страницу
+	 * @param string $format название формата
+	 * 
+	 * @return string HTML
+	 * 
+	 * @see Paginator::DEFAULT_HREF
+	 * @see Paginator::$formats
+	 */
 	function getOutput($href = self::DEFAULT_HREF, $format = '')
 	{
 		$ret = '';
@@ -143,6 +172,14 @@ class Paginator
 		return $ret;
 	}
 	
+	/**
+	 * Вывести навигацию
+	 * @param string $href формат ссылки на страницу
+	 * @param string $format название формата
+	 * 
+	 * @see Paginator::DEFAULT_HREF
+	 * @see Paginator::getOutput
+	 */
 	function showOutput($href = self::DEFAULT_HREF, $format = '')
 	{
 		echo $this->getOutput($href, $format);
