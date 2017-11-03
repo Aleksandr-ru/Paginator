@@ -55,7 +55,7 @@ class Paginator
 		if($value > $total) throw new BadMethodCallException("Value more than total");
 		if($value < $min) throw new BadMethodCallException("Value less than min");
 		
-		$total_pages = ceil(($total - $min) / $limit) + intval($min > 0);
+		$total_pages = ceil(($total - $min) / $limit);
 		$current_page = floor(($value - $min) / $limit) + 1;
 		
 		if($total_pages < ($range+1)* 2) { // тут все просто, рисуем с первой по последнюю
